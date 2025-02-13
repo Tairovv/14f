@@ -1,0 +1,378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Romantic Envelope</title>
+  <link href="https://fonts.googleapis.com/css2?family=Dancing+Script:wght@400;700&display=swap" rel="stylesheet">
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      min-height: 100vh;
+      background: linear-gradient(135deg, #fce7f3 0%, #fbcfe8 100%);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      font-family: 'Dancing Script', cursive;
+      padding-top: 25vh;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .container {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 3rem;
+      position: relative;
+    }
+
+    .envelope-wrapper {
+      width: 300px;
+      height: 200px;
+      position: relative;
+      perspective: 1000px;
+      filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.1));
+    }
+
+    .envelope {
+      width: 100%;
+      height: 100%;
+      position: relative;
+      border-radius: 5px;
+    }
+
+    .envelope::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      border: 2px solid rgba(244, 63, 94, 0.3);
+      border-radius: 5px;
+      pointer-events: none;
+      z-index: 5;
+    }
+
+    .envelope-body {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(135deg, #ff8a9e 0%, #fb7185 50%, #f43f5e 100%);
+      border-radius: 5px;
+      z-index: 1;
+    }
+
+    .envelope-flap {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: linear-gradient(180deg, #f43f5e 0%, #fb7185 100%);
+      clip-path: polygon(0 0, 50% 50%, 100% 0);
+      transform-origin: top;
+      transition: transform 0.5s ease;
+      z-index: 3;
+    }
+
+    .envelope.open .envelope-flap {
+      transform: rotateX(180deg);
+    }
+
+    .letter {
+      position: absolute;
+      left: 10px;
+      top: 10px;
+      width: calc(100% - 20px);
+      height: calc(100% - 20px);
+      background: white;
+      border-radius: 3px;
+      padding: 20px;
+      box-sizing: border-box;
+      transition: all 0.5s ease 0.3s;
+      transform: translateY(0);
+      box-shadow: 0 2px 10px rgba(0, 0, 0, 0.1);
+      z-index: 2;
+    }
+
+    .envelope.open .letter {
+      transform: translateY(-120%);
+      z-index: 4;
+    }
+
+    .letter-content {
+      opacity: 0;
+      transition: opacity 0.4s ease 0.6s;
+      text-align: center;
+      position: relative;
+    }
+
+    .envelope.open .letter-content {
+      opacity: 1;
+    }
+
+    .letter h2 {
+      color: #fb7185;
+      margin: 0 0 15px;
+      font-size: 1em;
+      position: relative;
+    }
+
+    .letter h2::after {
+      content: '❤️';
+      position: absolute;
+      top: -5px;
+      right: -25px;
+      font-size: 0.8em;
+    }
+
+    .letter p {
+      color: #f43f5e;
+      margin: 8px 0;
+      font-size: 1em;
+      line-height: 1.5;
+    }
+
+    .buttons {
+      display: flex;
+      gap: 20px;
+    }
+
+    button {
+      padding: 12px 40px;
+      font-size: 16px;
+      border: none;
+      border-radius: 25px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      font-family: Arial, sans-serif;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      position: relative;
+      overflow: hidden;
+    }
+
+    button.open-btn {
+      background: #f43f5e;
+      color: white;
+    }
+
+    button.close-btn {
+      background: white;
+      color: #f43f5e;
+      border: 2px solid #f43f5e;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 5px 15px rgba(244, 63, 94, 0.3);
+    }
+
+    .floating-heart {
+      position: absolute;
+      font-size: 20px;
+      pointer-events: none;
+      animation: floatHeart 3s ease-in-out forwards;
+      opacity: 0;
+    }
+
+    @keyframes floatHeart {
+      0% {
+        transform: translate(0, 0) rotate(0deg);
+        opacity: 0;
+      }
+      10% {
+        opacity: 1;
+      }
+      100% {
+        transform: translate(var(--tx), -300px) rotate(var(--rot));
+        opacity: 0;
+      }
+    }
+
+    .sparkle {
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      background: #f43f5e;
+      border-radius: 50%;
+      opacity: 0;
+    }
+
+    @keyframes sparkle {
+      0% {
+        transform: scale(0) rotate(0deg);
+        opacity: 0;
+      }
+      50% {
+        transform: scale(1) rotate(180deg);
+        opacity: 1;
+      }
+      100% {
+        transform: scale(0) rotate(360deg);
+        opacity: 0;
+      }
+    }
+
+    /* Дополнительный стиль для романтической цитаты */
+    .romantic-quote {
+      font-size: 1.5em;
+      color: #f43f5e;
+      text-align: center;
+      opacity: 0;
+      transition: opacity 0.5s ease, transform 0.5s ease;
+      transform: translateY(20px);
+      margin-top: 20px;
+      font-family: 'Dancing Script', cursive;
+    }
+
+    .romantic-quote.show {
+      opacity: 1;
+      transform: translateY(0);
+    }
+
+    /* Эффект конфетти */
+    .confetti {
+      position: absolute;
+      width: 8px;
+      height: 8px;
+      background: #ff8a9e;
+      top: -10px;
+      opacity: 1;
+      border-radius: 50%;
+      animation: confettiFall 3s linear forwards;
+    }
+
+    @keyframes confettiFall {
+      0% {
+        transform: translateY(0) rotate(0deg);
+        opacity: 1;
+      }
+      100% {
+        transform: translateY(100vh) rotate(360deg);
+        opacity: 0;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="envelope-wrapper">
+      <div class="envelope">
+        <div class="envelope-body"></div>
+        <div class="envelope-flap"></div>
+        <div class="letter">
+          <div class="letter-content">
+            <h2>Сейчас в душе такой покой</h2>
+            <p>А раньше был бардак</p>
+            <p>Хорошо ли мне с тобой?</p>
+            <p>Не представляешь</p>
+            <p>Как✨</p>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="buttons">
+      <button class="open-btn" onclick="toggleEnvelope()">Open</button>
+      <button class="close-btn" onclick="toggleEnvelope()">Close</button>
+    </div>
+    <div class="romantic-quote" id="quote">
+      Любовь творит чудеса!
+    </div>
+  </div>
+
+  <script>
+    function createHeart() {
+      const heart = document.createElement('div');
+      heart.innerHTML = '❤️';
+      heart.className = 'floating-heart';
+      heart.style.setProperty('--tx', (Math.random() * 200 - 100) + 'px');
+      heart.style.setProperty('--rot', (Math.random() * 360) + 'deg');
+      heart.style.left = Math.random() * window.innerWidth + 'px';
+      heart.style.top = '50%';
+      document.body.appendChild(heart);
+
+      setTimeout(() => {
+        heart.remove();
+      }, 3000);
+    }
+
+    function createSparkle(x, y) {
+      const sparkle = document.createElement('div');
+      sparkle.className = 'sparkle';
+      sparkle.style.left = x + 'px';
+      sparkle.style.top = y + 'px';
+      sparkle.style.animation = 'sparkle 1s ease-in-out forwards';
+      document.body.appendChild(sparkle);
+
+      setTimeout(() => {
+        sparkle.remove();
+      }, 1000);
+    }
+
+    // Функция для получения случайного цвета для конфетти
+    function getRandomColor() {
+      const colors = ['#ff8a9e', '#fb7185', '#f43f5e', '#ffc1cc', '#ffb6c1'];
+      return colors[Math.floor(Math.random() * colors.length)];
+    }
+
+    // Функция создания конфетти
+    function createConfetti() {
+      const confetti = document.createElement('div');
+      confetti.className = 'confetti';
+      confetti.style.left = Math.random() * window.innerWidth + 'px';
+      confetti.style.backgroundColor = getRandomColor();
+      document.body.appendChild(confetti);
+
+      setTimeout(() => {
+        confetti.remove();
+      }, 3000);
+    }
+
+    function toggleEnvelope() {
+      const envelope = document.querySelector('.envelope');
+      envelope.classList.toggle('open');
+
+      // Показываем/скрываем романтическую цитату
+      const quote = document.getElementById('quote');
+      if (envelope.classList.contains('open')) {
+        quote.classList.add('show');
+
+        // Запускаем эффекты: плавающие сердца уже есть, добавим немного дополнительных
+        for (let i = 0; i < 10; i++) {
+          setTimeout(() => {
+            createHeart();
+          }, i * 300);
+        }
+
+        const rect = envelope.getBoundingClientRect();
+        for (let i = 0; i < 20; i++) {
+          setTimeout(() => {
+            createSparkle(
+              rect.left + Math.random() * rect.width,
+              rect.top + Math.random() * rect.height
+            );
+          }, i * 100);
+        }
+
+        // Эффект конфетти
+        for (let i = 0; i < 30; i++) {
+          setTimeout(() => {
+            createConfetti();
+          }, i * 50);
+        }
+      } else {
+        quote.classList.remove('show');
+      }
+    }
+  </script>
+</body>
+</html>
